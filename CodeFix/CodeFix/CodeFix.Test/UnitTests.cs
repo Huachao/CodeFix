@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
-using CodeFix;
 
 namespace CodeFix.Test
 {
@@ -16,9 +15,33 @@ namespace CodeFix.Test
         [TestMethod]
         public void TestMethod1()
         {
-            var test = @"";
+            var test = @"
+using System;
+using System.Threading.Tasks;
 
-            VerifyCSharpDiagnostic(test);
+namespace ConsoleApplication1
+{
+    class Test
+    {
+        public static Task Call()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}";
+            var expected = new DiagnosticResult
+            {
+                Id = ReturnTaskRequiresAsyncAnalyzer.DiagnosticId,
+                Message = string.Format("Method which returns '{0}' whose name '{1}' doesn't end with Async", "Task", "Call"),
+                Severity = DiagnosticSeverity.Warning,
+                Locations =
+                    new[] {
+                            new DiagnosticResultLocation("Test0.cs", 9, 28)
+                        }
+            };
+
+
+            VerifyCSharpDiagnostic(test, expected);
         }
 
         //Diagnostic and CodeFix both triggered and checked for
@@ -41,7 +64,7 @@ namespace CodeFix.Test
     }";
             var expected = new DiagnosticResult
             {
-                Id = CodeFixAnalyzer.DiagnosticId,
+                Id = ReturnTaskRequiresAsyncAnalyzer.DiagnosticId,
                 Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
@@ -76,7 +99,7 @@ namespace CodeFix.Test
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new CodeFixAnalyzer();
+            return new ReturnTaskRequiresAsyncAnalyzer();
         }
     }
 }
