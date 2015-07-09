@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿namespace TestHelper
+{
+using Microsoft.CodeAnalysis;
 using System;
 
-namespace TestHelper
-{
     /// <summary>
     /// Location where the diagnostic appears, as determined by path, line number, and column number.
     /// </summary>
